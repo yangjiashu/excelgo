@@ -5,10 +5,17 @@ import (
 	"fmt"
 )
 
-func String2json(fields []string, values []string) []byte {
+type LengthError struct {
+	info string
+}
+
+func (err LengthError) Error() string {
+	return err.info
+}
+
+func String2json(fields []string, values []string) ([]byte, error) {
 	if len(fields) == 0 || len(values) == 0{
-		fmt.Println("fields 或 values的长度为0")
-		return []byte{}
+		return []byte{}, LengthError{"fields 或 values的长度为0"}
 	}
 
 	length := len(fields)
@@ -25,11 +32,14 @@ func String2json(fields []string, values []string) []byte {
 
 	bf := bytes.NewBuffer([]byte{})
 	bf.WriteString("{")
+	//fmt.Println("field len:", len(fields))
+	//fmt.Println("values len:", len(values))
+	//fmt.Println("length len:", length)
 
 	for i := 0; i < length; i++ {
 		bf.WriteString(fmt.Sprintf("\n\t\"%s\":", fields[i]))
 		bf.WriteString(fmt.Sprintf("\"%s\",", values[i]))
 	}
 	bf.WriteString("\n}")
-	return bf.Bytes()
+	return bf.Bytes(), nil
 }
